@@ -1,0 +1,6 @@
+{
+    "discord_bot_token": "token",
+    "avater_image_url": "https://cdn.discordapp.com/avatars/hogehoge.png",
+    "embed_color": "0xffb6c1",
+    "author": "testapp"
+}
