@@ -26,20 +26,32 @@ async def on_message(message):
     if not ap_music_url_list:
         return
     for url in ap_music_url_list:
-        songlink_query = "https://api.song.link/v1-alpha.1/links?url={}&key=".format(url)
+        await message.add_reaction(discord.PartialEmoji.from_dict({"name":"↪️"}))
+        
+
+        songlink_query = "https://api.song.link/v1-alpha.1/links?url={}&userCountry=JP&key=".format(url)
         response = requests.get(songlink_query)
         js = response.json()
         
         pageURL = js["pageUrl"]
+        for v in js["entitiesByUniqueId"].values():
+            firstElement = v
+            break
+        songTitle    = firstElement['title']
+        artistName   = firstElement['artistName']
+        thumbnailURL = firstElement['thumbnailUrl']
+
         platforms = set(js["linksByPlatform"].keys()) & set(["spotify", "youtube", "appleMusic"])
         links = {}
         for pl in platforms:
             links[pl] = js["linksByPlatform"][pl]["url"]
         
-        embed = MyEmbed("Songlink", "各プラットフォームへのリンクです。", pageURL)
+        embed = MyEmbed("{} - {}".format(artistName, songTitle), "各プラットフォームへのリンクです。", pageURL)
+        embed.embed.set_thumbnail(url=thumbnailURL)
 
         for pl in platforms:
-            embed.add_field(name=keyToName[pl], value=links[pl], inline=False)
+            #embed.add_field(name=keyToName[pl], value=links[pl], inline=False)
+            embed.add_field(name=keyToName[pl], value="[{}]({})".format(keyToName[pl], links[pl]), inline=False)
 
         await message.channel.send(embed=embed.embed)
     
